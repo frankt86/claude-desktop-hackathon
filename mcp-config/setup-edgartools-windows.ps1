@@ -61,6 +61,22 @@ try {
         throw "'python -m edgar.ai --test' failed (see the output above). Your Claude config was NOT changed."
     }
 
+    # Claude Desktop treats claude_desktop_config.json as its own LIVE app
+    # state (it reads AND rewrites this file while running - it is not a
+    # static file the app only reads once). If Claude Desktop is running
+    # while we write to it, the two writers can race: either the app
+    # overwrites our change moments later with its own stale in-memory copy
+    # (silently dropping mcpServers), or the two writes interleave and
+    # produce corrupted, unparseable JSON. Close it first, every time.
+    $claudeProcs = Get-Process | Where-Object { $_.Path -like "*\Claude.exe" -and $_.Path -notlike "*\.local\bin\*" }
+    if ($claudeProcs) {
+        Write-Host ""
+        Write-Host "Closing Claude Desktop so it doesn't overwrite this change while we write it..." -ForegroundColor Yellow
+        Write-Host "(Any unsaved chat draft in an open Claude window will be lost.)" -ForegroundColor Yellow
+        $claudeProcs | Stop-Process -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 2
+    }
+
     # Claude Desktop can be installed two different ways on Windows, and each
     # reads a DIFFERENT config file:
     #   - Traditional installer: %APPDATA%\Claude\claude_desktop_config.json
@@ -128,9 +144,32 @@ try {
         Write-Host "Wrote $configPath" -ForegroundColor Green
     }
 
+    # Verify the write actually stuck - something else (a lingering process we
+    # didn't catch, antivirus, a background sync tool) could still clobber it
+    # a moment later. Re-check after a short settle delay rather than assuming.
+    Start-Sleep -Seconds 2
+    $allOk = $true
+    foreach ($configPath in $targetPaths) {
+        try {
+            $recheck = Get-Content -Path $configPath -Raw | ConvertFrom-Json -ErrorAction Stop
+            if (-not (Get-Member -InputObject $recheck.mcpServers -Name edgartools -MemberType NoteProperty -ErrorAction SilentlyContinue)) {
+                Write-Host "WARNING: $configPath no longer contains edgartools - something else rewrote it after we wrote it. Re-run this script." -ForegroundColor Red
+                $allOk = $false
+            }
+        } catch {
+            Write-Host "WARNING: $configPath is not valid JSON after our write - something else corrupted it. Re-run this script, and make sure Claude Desktop is fully closed first." -ForegroundColor Red
+            $allOk = $false
+        }
+    }
+
     Write-Host ""
-    Write-Host "Done. Quit and reopen the Claude Desktop app for the edgartools MCP server to load." -ForegroundColor Green
-    Write-Host 'Test it by asking Claude: "Using edgartools, what was Deere & Company''s revenue last fiscal year?"'
+    if ($allOk) {
+        Write-Host "Verified: edgartools is present in all Claude config file(s) above." -ForegroundColor Green
+        Write-Host "Done. Reopen the Claude Desktop app for the edgartools MCP server to load." -ForegroundColor Green
+        Write-Host 'Test it by asking Claude: "Using edgartools, what was Deere & Company''s revenue last fiscal year?"'
+    } else {
+        Write-Host "Setup did not verify cleanly - see the warning(s) above before reopening Claude Desktop." -ForegroundColor Red
+    }
 }
 catch {
     Write-Host ""

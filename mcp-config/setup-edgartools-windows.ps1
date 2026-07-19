@@ -109,39 +109,57 @@ try {
     $targetPaths | ForEach-Object { Write-Host "  - $_" }
 
     foreach ($configPath in $targetPaths) {
-        $config = $null
         if (Test-Path $configPath) {
             $backupPath = "$configPath.bak.$(Get-Date -Format 'yyyyMMddHHmmss')"
             Copy-Item -Path $configPath -Destination $backupPath -Force
             Write-Host "Backed up existing config to: $backupPath"
-
-            try {
-                $config = Get-Content -Path $configPath -Raw | ConvertFrom-Json -ErrorAction Stop
-            } catch {
-                Write-Warning "Existing config at $configPath was not valid JSON; starting a new one."
-                $config = $null
-            }
         }
+    }
 
-        if (-not $config) {
-            $config = [PSCustomObject]@{}
-        }
-        if (-not (Get-Member -InputObject $config -Name mcpServers -MemberType NoteProperty)) {
-            $config | Add-Member -NotePropertyName mcpServers -NotePropertyValue ([PSCustomObject]@{})
-        }
+    # Do the actual JSON read-modify-write in Python, not PowerShell.
+    # PowerShell 5.1's Set-Content -Encoding utf8 writes a UTF-8 byte-order-mark
+    # (BOM) with no built-in way to turn it off, and Claude Desktop's own JSON
+    # parser does not tolerate that BOM - it fails to load the file entirely.
+    # PowerShell's own ConvertFrom-Json silently tolerates the BOM, which is
+    # why this never showed up in our own validation. Python's json module
+    # writes clean, standard, BOM-free UTF-8 and matches the formatting Claude
+    # Desktop itself uses (2-space indent), avoiding both problems.
+    $mergeScript = @'
+import json
+import sys
 
-        $entry = [PSCustomObject]@{
-            command = $pythonPath
-            args    = @("-m", "edgar.ai")
-            env     = [PSCustomObject]@{
-                EDGAR_IDENTITY   = $EdgarIdentity
-                PYTHONIOENCODING = "utf-8"
-            }
-        }
-        $config.mcpServers | Add-Member -NotePropertyName edgartools -NotePropertyValue $entry -Force
+python_bin = sys.argv[1]
+edgar_identity = sys.argv[2]
+config_paths = sys.argv[3:]
 
-        $config | ConvertTo-Json -Depth 10 | Set-Content -Path $configPath -Encoding utf8
-        Write-Host "Wrote $configPath" -ForegroundColor Green
+for config_path in config_paths:
+    try:
+        with open(config_path, "r", encoding="utf-8-sig") as f:
+            config = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        config = {}
+
+    config.setdefault("mcpServers", {})
+    config["mcpServers"]["edgartools"] = {
+        "command": python_bin,
+        "args": ["-m", "edgar.ai"],
+        "env": {
+            "EDGAR_IDENTITY": edgar_identity,
+            "PYTHONIOENCODING": "utf-8",
+        },
+    }
+
+    with open(config_path, "w", encoding="utf-8") as f:
+        json.dump(config, f, indent=2)
+        f.write("\n")
+
+    print(f"Wrote {config_path}")
+'@
+
+    $mergeArgs = @($pythonPath, $EdgarIdentity) + $targetPaths
+    $mergeScript | & $pythonPath - @mergeArgs
+    if ($LASTEXITCODE -ne 0) {
+        throw "Writing the Claude config failed (see the output above)."
     }
 
     # Verify the write actually stuck - something else (a lingering process we

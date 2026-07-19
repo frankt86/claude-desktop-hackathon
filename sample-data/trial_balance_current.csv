@@ -1,0 +1,29 @@
+Account Number,Account Name,Amount (Dr +/Cr -)
+1000-00,cash - operating ,152340.25
+ACCT1010, Cash - Payroll,48200.00
+1100,accounts receivable,287450.75
+1150,Allowance For Doubtful Accts,-14372.50
+1200-00,INVENTORY,198760.00
+ACCT1300,prepaid expenses,22150.00
+1500,Fixed Assets - Equipment ,415000.00
+1510,accum depreciation-equipment,-167500.00
+2000-00,ACCOUNTS PAYABLE,-164230.40
+ACCT2100, accrued liabilities,-58900.00
+2200,payroll liabilities,-31245.60
+2300,Deferred Revenue,-76500.00
+2500-00,notes payable - long term,-250000.00
+ACCT3000,Common Stock,-100000.00
+3100,retained earnings ,-318902.50
+4000,REVENUE - Product Sales,-892450.00
+4100-00,revenue - services,-215600.00
+ACCT5000,cost of goods sold,486320.00
+6000,Salaries & Wages ,342180.00
+6100,rent expense,96000.00
+6200-00,UTILITIES,18430.00
+ACCT6300,office supplies,7645.00
+6400,Depreciation Expense,41500.00
+6500, travel & entertainment,24890.00
+6600-00,professional fees,38900.00
+ACCT6700,insurance expense,109935.00
+6100,rent expense,96000.00
+6800,miscellaneous exp,1250.75 

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "edgartools": {
+      "command": "/usr/local/bin/python3",
+      "args": ["-m", "edgar.ai"],
+      "env": {
+        "EDGAR_IDENTITY": "Your Name your.email@example.com"
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+Account Number,Account Name,Debit,Credit
+1000,Cash - Operating,140504.68,
+1010,Cash - Payroll,39716.88,
+1100,Accounts Receivable,248358.80,
+1150,Allowance For Doubtful Accts,,12298.75
+1200,Inventory,186404.16,
+1300,Prepaid Expenses,20561.22,
+1500,Fixed Assets - Equipment,399540.72,
+1510,Accum Depreciation-Equipment,,139679.96
+2000,Accounts Payable,,145755.71
+2100,Accrued Liabilities,,48578.81
+2200,Payroll Liabilities,,26714.43
+2300,Deferred Revenue,,68915.55
+2500,Notes Payable - Long Term,,206061.44
+3000,Common Stock,,85181.40
+3100,Retained Earnings,,294660.01
+4000,Revenue - Product Sales,,809622.28
+4100,Revenue - Services,,184396.32
+5000,Cost Of Goods Sold,444633.87,
+6000,Salaries & Wages,324902.95,
+6100,Rent Expense,78819.82,
+6200,Utilities,17488.80,
+6300,Office Supplies,7122.86,
+6400,Depreciation Expense,36289.26,
+6500,Travel & Entertainment,21028.98,
+6600,Professional Fees,37855.69,
+6700,Insurance Expense,96067.26,

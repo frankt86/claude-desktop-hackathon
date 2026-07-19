@@ -165,7 +165,34 @@ try {
     Write-Host ""
     if ($allOk) {
         Write-Host "Verified: edgartools is present in all Claude config file(s) above." -ForegroundColor Green
-        Write-Host "Done. Reopen the Claude Desktop app for the edgartools MCP server to load." -ForegroundColor Green
+
+        Write-Host "Starting Claude Desktop..."
+        $launched = $false
+        try {
+            $app = Get-StartApps | Where-Object { $_.Name -eq "Claude" } | Select-Object -First 1
+            if ($app) {
+                Start-Process "shell:AppsFolder\$($app.AppID)"
+                $launched = $true
+            }
+        } catch {}
+        if (-not $launched) {
+            $exeCandidates = @((Join-Path $env:LOCALAPPDATA "Programs\Claude\Claude.exe"))
+            try {
+                $exeCandidates += Get-ChildItem "C:\Program Files\WindowsApps" -Directory -Filter "Claude_*" -ErrorAction SilentlyContinue |
+                    ForEach-Object { Join-Path $_.FullName "app\Claude.exe" }
+            } catch {}
+            $exe = $exeCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+            if ($exe) {
+                Start-Process $exe
+                $launched = $true
+            }
+        }
+
+        if ($launched) {
+            Write-Host "Done - Claude Desktop is open and the edgartools MCP server is loaded." -ForegroundColor Green
+        } else {
+            Write-Host "Done, but Claude Desktop couldn't be started automatically - open it yourself from the Start menu." -ForegroundColor Yellow
+        }
         Write-Host 'Test it by asking Claude: "Using edgartools, what was Deere & Company''s revenue last fiscal year?"'
     } else {
         Write-Host "Setup did not verify cleanly - see the warning(s) above before reopening Claude Desktop." -ForegroundColor Red

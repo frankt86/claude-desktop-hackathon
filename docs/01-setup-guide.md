@@ -29,20 +29,22 @@ MCP (Model Context Protocol) is how Claude connects to outside data. The SEC EDG
 
 This workshop uses **[EdgarTools](https://edgartools.readthedocs.io/en/latest/ai/)**'s MCP server (`edgar.ai`): 13 SEC tools organized around tasks (discover, examine, analyze), running locally on the participant's machine — no third-party hosted server in the loop.
 
-**Install path — run one setup script, restart Claude Desktop:**
+**What participants actually do:** open `download/START-HERE.docx` and double-click `Run-Setup-Mac.command` or `Run-Setup-Windows.bat` for their OS. It prompts for their name and email, installs `edgartools[ai]`, verifies it, and writes the MCP entry into `claude_desktop_config.json` — no typed commands, no execution-policy or PATH knowledge required. Full troubleshooting is in that doc.
+
+**Facilitator reference — what the launcher does under the hood** (useful if you're debugging a participant's machine, or prefer the command line yourself):
 
 1. Requires Python 3 installed (https://www.python.org/downloads/).
-2. Open a terminal and run the script for your OS from the `mcp-config/` folder in this package, passing your real name and email (SEC EDGAR requires identifying user agents):
-   - macOS: `./setup-edgartools-mac.sh "Your Name" "your.email@example.com"`
-   - Windows (PowerShell): `.\setup-edgartools-windows.ps1 -Name "Your Name" -Email "your.email@example.com"`
+2. Open a terminal and run the script for your OS from the `mcp-config/` folder, passing a real name and email (SEC EDGAR requires identifying user agents):
+   - macOS: `bash setup-edgartools-mac.sh "Your Name" "your.email@example.com"`
+   - Windows (PowerShell): `powershell -ExecutionPolicy Bypass -File .\setup-edgartools-windows.ps1 -Name "Your Name" -Email "your.email@example.com"`
 3. The script installs `edgartools[ai]`, verifies it, and writes the MCP entry into `claude_desktop_config.json` (backing up any existing file first).
 4. Quit and reopen the Claude desktop app.
 5. Test it by asking Claude: *"Using edgartools, what was Deere & Company's revenue last fiscal year? Include the source filing URL."*
 
 Notes:
 
-- The script resolves the absolute path to your Python interpreter — Claude Desktop launches MCP servers without your shell's PATH, so this matters
-- Facilitator tip: have participants run the script before the event if possible; live installs eat into workshop time
+- The script resolves the absolute path to the Python interpreter — Claude Desktop launches MCP servers without the shell's PATH, so this matters
+- Facilitator tip: have participants run this before the event if possible; live installs eat into workshop time
 - Full manual config and Claude Code quick-add are in `mcp-config/README.md`
 
 ---

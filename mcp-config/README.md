@@ -22,6 +22,15 @@ Deere & Company's revenue last fiscal year? Include the source filing URL."*
 `mcp-config.json` in this folder is the config template the scripts write into
 `claude_desktop_config.json`.
 
+**Windows note:** Claude Desktop can be installed two different ways, and each
+reads a different config file — the script detects and updates whichever
+exist, so this is handled automatically, but it's worth knowing about if you
+ever need to check the file by hand:
+- Traditional installer: `%APPDATA%\Claude\claude_desktop_config.json`
+- Microsoft Store (MSIX) install: Windows virtualizes `%APPDATA%` for
+  packaged apps, so the real file is under
+  `%LOCALAPPDATA%\Packages\Claude_<hash>\LocalCache\Roaming\Claude\claude_desktop_config.json`
+
 Requirements: Python 3 installed and on PATH. No API key or SEC registration —
 just a real name and email for `EDGAR_IDENTITY` (SEC EDGAR requires
 identifying user agents and may block anonymous traffic).

@@ -1,6 +1,6 @@
-# 02 - The Opening Demo: One Trial Balance, Four Levels (35 minutes)
+# 02 - The Opening Demo: One Trial Balance, Four Levels (20 minutes)
 
-One messy trial balance (`sample-data/trial_balance_current.csv`), taken up the whole ladder live. This is the single most important 35 minutes of the event — it makes the Chat/Skills vs Cowork/Code contrast concrete before teams touch anything.
+One messy trial balance (`sample-data/trial_balance_current.csv`), taken up the whole ladder live. This is the single most important 20 minutes of the event — it makes the Chat/Skills vs Cowork/Code contrast concrete before teams touch anything. Pace is tight; keep talk-out-loud moments short and rehearse the transitions.
 
 **The story to tell:** "Your junior staff just sent you this file. Inconsistent names, stray whitespace, debits and credits jammed into one signed column, and a couple of entries that don't belong. We're going to handle it four different ways, and each way teaches you a different thing Claude can be."
 
@@ -8,7 +8,7 @@ Practice end to end and record a backup.
 
 ---
 
-## Level 1 — Chat: the answer (~7 min)
+## Level 1 — Chat: the answer (~4 min)
 
 Open regular Claude chat. Paste 10-15 rows of the messy file directly into the message.
 
@@ -16,7 +16,7 @@ Open regular Claude chat. Paste 10-15 rows of the messy file directly into the m
 
 **Point out:** no setup, no files, instant value — and its limit: you got an explanation, not a fixed file. Also ask the room: "Would you trust this without checking? Why not?" Plant the verification habit in minute one.
 
-## Level 2 — Chat + Skill: the repeatable answer (~7 min)
+## Level 2 — Chat + Skill: the repeatable answer (~4 min)
 
 > Help me create a skill called "TB cleanup standards". Whenever I give Claude a trial balance, it must: standardize account names and numbers, split signed amounts into debit/credit columns, verify the TB balances, and always produce an Exceptions list documenting every change and why. No silent fixes, ever.
 
@@ -24,7 +24,7 @@ Then paste the same excerpt again and watch the skill apply automatically.
 
 **Point out:** the prompt you perfected is now an asset. Say the classroom line: **"A skill is how you hand your prompting expertise to 40 students at once — or to yourself next semester."** This closes the "Chat & Skills" half.
 
-## Level 3 — Cowork: the deliverable (~10 min)
+## Level 3 — Cowork: the deliverable (~5 min)
 
 Switch to Cowork. Attach the full `trial_balance_current.csv`.
 
@@ -38,7 +38,7 @@ Switch to Cowork. Attach the full `trial_balance_current.csv`.
 
 Click the URL. "Not from memory — from the filing." This previews Challenge A.
 
-## Level 4 — Cowork + Code: the machine (~10 min)
+## Level 4 — Cowork + Code: the machine (~5 min)
 
 Full script and talking points in `docs/02b-claude-code-demo.md`. The short version, runnable in Cowork or Claude Code:
 

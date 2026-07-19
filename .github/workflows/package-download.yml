@@ -1,0 +1,32 @@
+name: Package participant download
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "download/**"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Zip download folder
+        run: |
+          cd download
+          zip -r ../hackathon-materials.zip . -x ".*"
+
+      - name: Publish release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete materials --yes --cleanup-tag || true
+          gh release create materials hackathon-materials.zip \
+            --title "Participant Materials (auto-built)" \
+            --notes "Zip of the download/ folder, rebuilt automatically whenever it changes. Direct link: https://github.com/${{ github.repository }}/releases/latest/download/hackathon-materials.zip"

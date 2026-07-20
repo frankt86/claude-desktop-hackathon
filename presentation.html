@@ -406,30 +406,7 @@
     </div>
   </section>
 
-  <!-- 14 HANDS-ON -->
-  <section class="slide" data-part="Part II · Practice">
-    <div class="eyebrow">The exercise</div>
-    <h2>One messy trial balance, then your choice.</h2>
-    <p class="lede">We take a single messy trial balance up all four rungs together. Then teams of two or three pick a track and climb as far as time allows.</p>
-    <div class="chalgrid">
-      <div class="chal"><div class="badge">Challenge A</div><h3>The 10-K, four ways</h3><div class="sub">Analyze a real company using live SEC EDGAR data, from a quick read to an automated pipeline.</div></div>
-      <div class="chal"><div class="badge">Challenge B</div><h3>Month-end rescue</h3><div class="sub">Clean a messy trial balance and build a flux analysis from local files.</div></div>
-    </div>
-    <p class="caption">Same ladder either way. You choose the subject, not the difficulty. The two rules apply throughout: verify every figure, and treat every output as a first draft.</p>
-  </section>
-
-  <!-- 15 WRAP -->
-  <section class="slide" data-part="Part II · Practice">
-    <div class="eyebrow">What to take back</div>
-    <h2>Two things for your syllabus.</h2>
-    <ul class="pointlist">
-      <li><b>The verification habit.</b> Teach it as a reflex, the way you already teach the tie-out.</li>
-      <li><b>The ladder.</b> Match the rung to the moment. A discussion prompt is rung one. A grading rubric is rung two. A case deliverable is rung three. A research pipeline is rung four.</li>
-    </ul>
-    <p class="caption">You do not need to become an engineer. You need to become the reviewer your students will be asked to be, and to teach them to be it too.</p>
-  </section>
-
-  <!-- 16 SETUP -->
+  <!-- 14 SETUP -->
   <section class="slide" data-part="Part II · Setup">
     <div class="eyebrow">One-time setup · About five minutes</div>
     <h2>Install the SEC EDGAR connector. One download, one double-click.</h2>
@@ -438,7 +415,7 @@
         <div class="sn">1</div>
         <div>
           <h3>Download the workshop package</h3>
-          <p>Grab the zip from the GitHub repository and unzip it anywhere. Everything is inside, including <b>START-HERE.docx</b> with full instructions.</p>
+          <p>Grab the zip from the GitHub repository and unzip it anywhere. Everything is inside, including <b>START-HERE.docx</b> with full instructions and the sample data.</p>
           <div class="code">github.com/frankt86/claude-desktop-hackathon → Releases → hackathon-materials.zip</div>
         </div>
       </div>
@@ -456,47 +433,66 @@
       <div class="step">
         <div class="sn">3</div>
         <div>
-          <h3>Restart Claude</h3>
-          <p>Quit the Claude desktop app completely and reopen it. The <b>edgartools</b> connector loads on launch — Claude can now pull live SEC filings.</p>
+          <h3>Restart Claude, then test it</h3>
+          <p>Quit the Claude desktop app completely, reopen it, and ask:</p>
+          <div class="code">"Using edgartools, what was Deere &amp; Company's revenue last fiscal year? Include the source filing URL."</div>
+          <p>A revenue figure <b>with a sec.gov link</b> means you are live. Click the link — that is Rule 1 in action.</p>
         </div>
       </div>
     </div>
-    <p class="caption">Requires Python 3 (free, python.org/downloads). Prefer a terminal? The same scripts run from the command line: <b>bash setup-edgartools-mac.sh "Your Name" "you@email.com"</b></p>
+    <p class="caption">Requires Python 3 (free, python.org/downloads). Anything goes wrong, the troubleshooting section of <b>START-HERE.docx</b> has you covered.</p>
   </section>
 
-  <!-- 17 WALKTHROUGH -->
-  <section class="slide" data-part="Part II · Setup">
-    <div class="eyebrow">The walkthrough · Prove it works, then climb</div>
-    <h2>Verify the connection, then take one file up the ladder.</h2>
+  <!-- 15 DEMO -->
+  <section class="slide" data-part="Part II · Practice">
+    <div class="eyebrow">The demo · Watch one file climb all four rungs</div>
+    <h2>One messy trial balance, Chat to Code.</h2>
     <div class="steps">
       <div class="step">
         <div class="sn">1</div>
         <div>
-          <h3>Test the connector with one question</h3>
-          <p>Ask Claude, in a normal chat:</p>
-          <div class="code">"Using edgartools, what was Deere &amp; Company's revenue last fiscal year? Include the source filing URL."</div>
-          <p>A revenue figure <b>with a sec.gov link</b> means you are live. Click the link — that is Rule 1 in action.</p>
+          <h3>Chat — find what's wrong</h3>
+          <p>Paste the trial balance into a chat and ask what a reviewer should catch. Claude finds the misclassifications and the out-of-balance total in seconds.</p>
         </div>
       </div>
       <div class="step">
         <div class="sn">2</div>
         <div>
-          <h3>Open the sample data</h3>
-          <p>The package includes <b>sample-data/</b>: a messy trial balance, the prior-period trial balance, and an expense report. This is the raw material for Challenge B.</p>
+          <h3>Skill — make it repeatable</h3>
+          <p>Package that prompt as a <b>skill</b>: your review standard, encoded, so it runs the same way every time — for you or all forty of your students.</p>
         </div>
       </div>
       <div class="step">
         <div class="sn">3</div>
         <div>
-          <h3>Climb with your team</h3>
-          <p><b>Rung 1</b> — chat: have Claude find what's wrong with the trial balance. <b>Rung 2</b> — package that prompt as a skill. <b>Rung 3</b> — Cowork builds the flux workpaper in Excel. <b>Rung 4</b> — ask for a script you can rerun every month-end.</p>
+          <h3>Cowork — build the deliverable</h3>
+          <p>Claude works the actual files — current and prior-period trial balances — and produces a finished <b>flux analysis in Excel</b>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sn">4</div>
+        <div>
+          <h3>Code — automate it</h3>
+          <p>Ask for a script that rebuilds the workpaper on demand. Next month-end, it reruns in seconds.</p>
         </div>
       </div>
     </div>
-    <p class="caption">The two rules apply on every rung: verify every figure back to its source, and review every output like a first-year's file.</p>
+    <p class="caption">Watch first — then it's your turn. Your teams run this same climb on the challenge you pick next.</p>
   </section>
 
-  <!-- 18 SHOW AND TELL -->
+  <!-- 16 CHALLENGES -->
+  <section class="slide" data-part="Part II · Practice">
+    <div class="eyebrow">Your turn · Teams of two or three</div>
+    <h2>Pick a challenge, climb the same ladder.</h2>
+    <p class="lede">Both tracks climb the identical four rungs — Chat, Skill, Cowork, Code. You choose the subject, not the difficulty.</p>
+    <div class="chalgrid">
+      <div class="chal"><div class="badge">Challenge A</div><h3>The 10-K, four ways</h3><div class="sub">Analyze a real company using live SEC EDGAR data, from a quick read to an automated pipeline.</div></div>
+      <div class="chal"><div class="badge">Challenge B</div><h3>Month-end rescue</h3><div class="sub">Clean a messy trial balance and build a flux analysis from local files.</div></div>
+    </div>
+    <p class="caption">Step-by-step instructions for both tracks — every level, every prompt — are in <b>Challenges.docx</b> in your download package. Climb as far as time allows; a team that does two rungs well beats a team that rushed to four. The two rules apply throughout.</p>
+  </section>
+
+  <!-- 17 SHOW AND TELL -->
   <section class="slide" data-part="Part II · Practice">
     <div class="eyebrow">Show and tell · Two minutes per team</div>
     <h2>Show us what you built.</h2>
@@ -506,6 +502,17 @@
       <li><b>One surprise.</b> Where was the AI better than you expected — and where was it confidently wrong?</li>
     </ul>
     <p class="caption">The rung you reached matters less than what you noticed on the way up. The wrong answers you caught are worth as much as the right ones you got.</p>
+  </section>
+
+  <!-- 18 WRAP -->
+  <section class="slide" data-part="Part II · Practice">
+    <div class="eyebrow">What to take back</div>
+    <h2>Two things for your syllabus.</h2>
+    <ul class="pointlist">
+      <li><b>The verification habit.</b> Teach it as a reflex, the way you already teach the tie-out.</li>
+      <li><b>The ladder.</b> Match the rung to the moment. A discussion prompt is rung one. A grading rubric is rung two. A case deliverable is rung three. A research pipeline is rung four.</li>
+    </ul>
+    <p class="caption">You do not need to become an engineer. You need to become the reviewer your students will be asked to be, and to teach them to be it too.</p>
   </section>
 
   <!-- 19 SOURCES -->

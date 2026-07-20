@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artificial Intelligence in Accounting — Notre Dame</title>
+<style>
+  :root{
+    --navy:#0C2340;
+    --navy-deep:#071829;
+    --navy-soft:#123157;
+    --navy-card:#0F2A4A;
+    --gold:#C99700;
+    --gold-bright:#E7BB3E;
+    --cream:#F5F1E7;
+    --slate:#9FB2C6;
+    --slate-dim:#6E819A;
+    --line:rgba(201,151,0,0.30);
+    --line-soft:rgba(159,178,198,0.16);
+    --serif:"Palatino Linotype","Book Antiqua","Iowan Old Style",Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:"SF Mono",ui-monospace,"Cascadia Code","Consolas","Liberation Mono",monospace;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--navy-deep);
+    color:var(--cream);
+    font-family:var(--sans);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .slide{
+    position:absolute;inset:0;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:6vh 8vw;
+    background:
+      radial-gradient(120% 90% at 82% 8%, rgba(201,151,0,0.10), transparent 55%),
+      linear-gradient(180deg,var(--navy) 0%, var(--navy-deep) 100%);
+    opacity:0;visibility:hidden;transform:translateY(14px);
+    transition:opacity .5s ease, transform .5s ease, visibility 0s linear .5s;
+    overflow-y:auto;
+  }
+  .slide.active{
+    opacity:1;visibility:visible;transform:none;
+    transition:opacity .5s ease, transform .5s ease, visibility 0s;
+    z-index:2;
+  }
+  .slide::before{
+    content:"";position:absolute;top:0;bottom:0;left:calc(8vw - 26px);
+    width:1px;background:linear-gradient(180deg,transparent,var(--line),transparent);
+    opacity:.5;pointer-events:none;
+  }
+
+  .eyebrow{
+    font-family:var(--mono);font-size:clamp(11px,1.05vw,14px);
+    letter-spacing:.28em;text-transform:uppercase;color:var(--gold);
+    margin-bottom:1.3rem;display:flex;align-items:center;gap:.9rem;
+  }
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--gold);flex-shrink:0}
+
+  h1{font-family:var(--serif);font-weight:600;line-height:1.03;letter-spacing:-.01em;font-size:clamp(32px,5.6vw,74px)}
+  h2{font-family:var(--serif);font-weight:600;line-height:1.06;letter-spacing:-.01em;font-size:clamp(26px,4.1vw,54px);max-width:22ch}
+  .lede{font-size:clamp(16px,1.65vw,22px);color:var(--slate);line-height:1.5;max-width:56ch;margin-top:1.5rem}
+  .caption{font-size:clamp(13.5px,1.3vw,18px);color:var(--slate);line-height:1.55;max-width:62ch;margin-top:1.8rem;border-left:2px solid var(--gold);padding-left:1.1rem}
+  .source{font-family:var(--mono);font-size:clamp(10px,1vw,12.5px);color:var(--slate-dim);letter-spacing:.03em;margin-top:1.4rem;line-height:1.5}
+  .gold{color:var(--gold-bright)}
+
+  /* title */
+  .title-meta{margin-top:2.4rem;font-family:var(--mono);font-size:clamp(12px,1.1vw,15px);letter-spacing:.06em;color:var(--slate);max-width:54ch;line-height:1.7}
+  .title-meta b{color:var(--gold-bright);font-weight:400}
+
+  /* next-token */
+  .sentence{font-family:var(--serif);font-size:clamp(18px,2.6vw,36px);line-height:1.3;margin-top:2rem;max-width:26ch}
+  .blank{color:var(--gold-bright);border-bottom:3px solid var(--gold);padding:0 .5rem}
+  .tokens{margin-top:1.9rem;display:flex;flex-direction:column;gap:.7rem;max-width:600px}
+  .tok{display:grid;grid-template-columns:140px 1fr 54px;align-items:center;gap:1rem}
+  .tok .word{font-family:var(--mono);font-size:clamp(12px,1.25vw,16px);color:var(--cream);text-align:right}
+  .tok .bar{height:15px;background:rgba(159,178,198,.12);border-radius:8px;overflow:hidden}
+  .tok .fill{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-bright));border-radius:8px;transition:width 1s cubic-bezier(.2,.7,.3,1)}
+  .active .tok .fill{width:var(--w)}
+  .tok .pct{font-family:var(--mono);font-size:clamp(11px,1.1vw,14px);color:var(--slate)}
+  .active .tok:nth-child(1) .fill{transition-delay:.1s}
+  .active .tok:nth-child(2) .fill{transition-delay:.24s}
+  .active .tok:nth-child(3) .fill{transition-delay:.38s}
+  .active .tok:nth-child(4) .fill{transition-delay:.52s}
+
+  /* evolution curve */
+  .evowrap{margin-top:1.6rem;width:100%;max-width:1040px}
+  .evo{width:100%;height:auto;display:block}
+  .evo .grid{stroke:var(--line-soft);stroke-width:1}
+  .evo .axis-label{fill:var(--slate-dim);font-family:var(--mono);font-size:13px;letter-spacing:.16em;text-transform:uppercase}
+  .evo .curve{fill:none;stroke:var(--gold-bright);stroke-width:3;
+    stroke-dasharray:2200;stroke-dashoffset:2200;transition:stroke-dashoffset 2s ease}
+  .active .evo .curve{stroke-dashoffset:0}
+  .evo .area{fill:url(#evoFill);opacity:0;transition:opacity 1.2s ease .8s}
+  .active .evo .area{opacity:1}
+  .evo .dot{fill:var(--navy);stroke:var(--gold-bright);stroke-width:3;opacity:0;transition:opacity .4s ease}
+  .active .evo .dot{opacity:1}
+  .evo .dot.hot{fill:var(--gold-bright)}
+  .evo .yr{fill:var(--gold);font-family:var(--mono);font-size:15px;font-weight:600;opacity:0;transition:opacity .5s ease}
+  .evo .lbl{fill:var(--cream);font-family:var(--serif);font-size:16px;opacity:0;transition:opacity .5s ease}
+  .active .evo .yr,.active .evo .lbl{opacity:1}
+  .active .evo .m1{transition-delay:.5s} .active .evo .m2{transition-delay:.8s}
+  .active .evo .m3{transition-delay:1.1s} .active .evo .m4{transition-delay:1.4s}
+  .active .evo .m5{transition-delay:1.7s} .active .evo .m6{transition-delay:2s}
+
+  /* generic point list */
+  .pointlist{list-style:none;margin-top:2rem;display:flex;flex-direction:column;gap:.95rem;max-width:64ch}
+  .pointlist li{font-size:clamp(14.5px,1.45vw,20px);color:var(--slate);line-height:1.45;padding-left:1.7rem;position:relative}
+  .pointlist li b{color:var(--cream);font-weight:600}
+  .pointlist li .fig{color:var(--gold-bright);font-weight:600}
+  .pointlist li::before{content:"";position:absolute;left:0;top:.55em;width:9px;height:9px;background:var(--gold);border-radius:2px;transform:rotate(45deg)}
+
+  /* stat trio */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-top:2.4rem}
+  .stat{border:1px solid var(--line-soft);border-top:3px solid var(--gold);border-radius:12px;padding:1.6rem 1.4rem;background:rgba(255,255,255,.02)}
+  .stat .big{font-family:var(--serif);font-size:clamp(34px,4.6vw,64px);color:var(--gold-bright);line-height:1}
+  .stat p{color:var(--slate);font-size:clamp(13px,1.25vw,16px);line-height:1.45;margin-top:.8rem}
+
+  /* two research cards */
+  .rcards{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2.2rem}
+  .rcard{border:1px solid var(--line-soft);border-left:3px solid var(--gold);border-radius:12px;padding:1.6rem 1.5rem;background:rgba(255,255,255,.02)}
+  .rcard .stat-line{font-family:var(--serif);font-size:clamp(20px,2.1vw,30px);color:var(--gold-bright);line-height:1.1;margin-bottom:.7rem}
+  .rcard p{color:var(--slate);font-size:clamp(13px,1.28vw,16.5px);line-height:1.5}
+  .rcard .cite{font-family:var(--mono);font-size:11.5px;color:var(--slate-dim);margin-top:.9rem;display:block}
+
+  /* three cards */
+  .three{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-top:2.4rem}
+  .tcard{border:1px solid var(--line-soft);border-radius:13px;padding:1.6rem 1.4rem;background:rgba(255,255,255,.02)}
+  .tcard .k{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem}
+  .tcard .v{font-family:var(--serif);font-size:clamp(16px,1.7vw,23px);line-height:1.18;color:var(--cream)}
+
+  /* rules */
+  .rules{display:grid;grid-template-columns:1fr 1fr;gap:1.7rem;margin-top:2.4rem}
+  .rulecard{border:1px solid var(--line);border-radius:16px;padding:2rem 1.9rem;background:rgba(201,151,0,0.05);position:relative;overflow:hidden}
+  .rulecard .n{position:absolute;top:-20px;right:8px;font-family:var(--serif);font-size:120px;color:rgba(201,151,0,.12);font-weight:700}
+  .rulecard h3{font-family:var(--serif);font-size:clamp(20px,2.4vw,32px);color:var(--gold-bright);margin-bottom:.8rem}
+  .rulecard p{color:var(--slate);font-size:clamp(13.5px,1.3vw,17.5px);line-height:1.5}
+
+  /* ladder */
+  .ladder{display:flex;align-items:flex-end;gap:clamp(10px,1.4vw,20px);margin-top:2.4rem}
+  .rung{flex:1;background:var(--navy-card);border:1px solid var(--line-soft);border-bottom:3px solid var(--gold);border-radius:10px 10px 4px 4px;padding:1.1rem 1rem 1.2rem;transform:translateY(20px);opacity:0;transition:transform .55s cubic-bezier(.2,.7,.3,1),opacity .55s ease}
+  .active .rung{transform:none;opacity:1}
+  .active .rung:nth-child(1){transition-delay:.15s}.active .rung:nth-child(2){transition-delay:.3s}
+  .active .rung:nth-child(3){transition-delay:.45s}.active .rung:nth-child(4){transition-delay:.6s}
+  .rung:nth-child(1){min-height:140px}.rung:nth-child(2){min-height:178px}
+  .rung:nth-child(3){min-height:220px;border-bottom-color:rgba(201,151,0,.9)}.rung:nth-child(4){min-height:266px;border-bottom-color:var(--gold-bright)}
+  .rung .num{font-family:var(--mono);font-size:clamp(18px,2vw,28px);color:var(--gold-bright);font-weight:600}
+  .rung .mode{font-family:var(--serif);font-size:clamp(16px,1.7vw,23px);margin-top:.5rem;line-height:1.1}
+  .rung .give{font-size:clamp(12.5px,1.15vw,15.5px);color:var(--slate);margin-top:.6rem;line-height:1.4}
+
+  /* challenge cards */
+  .chalgrid{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;margin-top:2rem}
+  .chal{border:1px solid var(--line-soft);border-radius:15px;padding:1.8rem 1.7rem;background:rgba(255,255,255,.025);transition:border-color .3s,transform .3s}
+  .chal:hover{border-color:var(--gold);transform:translateY(-3px)}
+  .chal .badge{font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase}
+  .chal h3{font-family:var(--serif);font-size:clamp(20px,2.2vw,30px);margin:.5rem 0 .6rem;line-height:1.05}
+  .chal .sub{color:var(--slate);font-size:clamp(13.5px,1.28vw,17px);line-height:1.45}
+
+  /* sources */
+  .srclist{list-style:none;margin-top:1.8rem;display:flex;flex-direction:column;gap:.7rem;max-width:74ch}
+  .srclist li{font-size:clamp(12.5px,1.2vw,15.5px);color:var(--slate);line-height:1.4;padding-left:1.5rem;position:relative}
+  .srclist li::before{content:"§";position:absolute;left:0;color:var(--gold);font-family:var(--serif)}
+  .srclist li b{color:var(--cream);font-weight:600}
+  .closing-mark{font-family:var(--mono);font-size:clamp(11px,1vw,13px);color:var(--slate-dim);letter-spacing:.04em;margin-top:2rem;line-height:1.7}
+
+  /* setup steps */
+  .steps{margin-top:2rem;display:flex;flex-direction:column;gap:1.2rem;max-width:900px}
+  .step{display:grid;grid-template-columns:52px 1fr;gap:1.1rem;align-items:start}
+  .step .sn{font-family:var(--serif);font-size:clamp(24px,2.6vw,38px);color:var(--gold-bright);line-height:1;border:1px solid var(--line);border-radius:10px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:rgba(201,151,0,.06)}
+  .step h3{font-family:var(--serif);font-size:clamp(17px,1.8vw,25px);color:var(--cream);line-height:1.15}
+  .step p{color:var(--slate);font-size:clamp(13px,1.28vw,16.5px);line-height:1.5;margin-top:.35rem}
+  .step p b{color:var(--cream);font-weight:600}
+  .code{font-family:var(--mono);font-size:clamp(11.5px,1.15vw,14.5px);color:var(--gold-bright);background:rgba(0,0,0,.35);border:1px solid var(--line-soft);border-radius:8px;padding:.5rem .8rem;margin-top:.55rem;display:inline-block;max-width:100%;overflow-x:auto;white-space:nowrap}
+  .oschoice{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:.55rem}
+  .oschoice span{font-family:var(--mono);font-size:clamp(11.5px,1.1vw,14px);color:var(--cream);border:1px solid var(--line);border-radius:8px;padding:.45rem .8rem;background:rgba(201,151,0,.07)}
+  .oschoice span em{font-style:normal;color:var(--gold);margin-right:.5rem;font-size:.85em;letter-spacing:.1em;text-transform:uppercase}
+  @media (max-width:860px){
+    .step{grid-template-columns:40px 1fr;gap:.7rem}
+    .step .sn{width:40px;height:40px;font-size:20px}
+  }
+
+  /* chrome */
+  .progress{position:fixed;top:0;left:0;height:3px;background:var(--gold-bright);width:0;z-index:50;transition:width .4s ease}
+  .counter{position:fixed;bottom:20px;right:26px;font-family:var(--mono);font-size:13px;color:var(--slate);z-index:50;letter-spacing:.1em}
+  .counter b{color:var(--gold-bright)}
+  .partflag{position:fixed;bottom:20px;left:26px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--slate-dim);z-index:50}
+  .nav{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:50}
+  .nav button{background:rgba(255,255,255,.04);border:1px solid var(--line-soft);color:var(--slate);width:38px;height:32px;border-radius:8px;cursor:pointer;font-size:15px;transition:.2s}
+  .nav button:hover{border-color:var(--gold);color:var(--gold-bright)}
+  .hint{position:fixed;bottom:58px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:11px;color:var(--slate-dim);z-index:50;letter-spacing:.1em;transition:opacity 1s}
+  .hint.gone{opacity:0}
+
+  @media (max-width:860px){
+    .slide{padding:5vh 7vw}
+    .slide::before{display:none}
+    .stats,.three,.rules,.chalgrid,.rcards{grid-template-columns:1fr;gap:1rem}
+    .ladder{gap:8px}.rung{padding:.9rem .7rem}.rung:nth-child(n){min-height:auto}
+    .tok{grid-template-columns:96px 1fr 42px;gap:.6rem}
+    .counter,.partflag{font-size:11px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+    .rung,.tok .fill,.evo .curve,.evo .area,.evo .dot,.evo .yr,.evo .lbl{opacity:1!important;transform:none!important;stroke-dashoffset:0!important;width:var(--w,auto)!important}
+    .active .tok .fill{width:var(--w)}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="partflag" id="partflag"></div>
+<div class="counter"><b id="cur">1</b> / <span id="total">19</span></div>
+<div class="hint" id="hint">← → to move</div>
+<div class="nav"><button id="prev" aria-label="Previous">←</button><button id="next" aria-label="Next">→</button></div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 TITLE -->
+  <section class="slide" data-part="Part I · The technology">
+    <div class="eyebrow">Notre Dame · Department of Accountancy</div>
+    <h1>Artificial Intelligence<br>in Accounting</h1>
+    <p class="lede">What it is, where it is going, and what it means for how we teach.</p>
+    <div class="title-meta">A working session in two parts. First, the technology and its effect on the profession. Then, in the second hour, we put the ideas into practice using one AI system, <b>Claude</b>. No coding required.</div>
+  </section>
+
+  <!-- 2 WHAT AI IS -->
+  <section class="slide" data-part="Part I · The technology">
+    <div class="eyebrow">First, what we are actually discussing</div>
+    <h2>Modern AI learns from data rather than following rules we write by hand.</h2>
+    <div class="sentence">"After the adjusting entries, the trial balance finally <span class="blank">&nbsp;?&nbsp;</span>"</div>
+    <div class="tokens">
+      <div class="tok"><div class="word">balanced</div><div class="bar"><div class="fill" style="--w:61%"></div></div><div class="pct">61%</div></div>
+      <div class="tok"><div class="word">reconciled</div><div class="bar"><div class="fill" style="--w:19%"></div></div><div class="pct">19%</div></div>
+      <div class="tok"><div class="word">tied&nbsp;out</div><div class="bar"><div class="fill" style="--w:13%"></div></div><div class="pct">13%</div></div>
+      <div class="tok"><div class="word">agreed</div><div class="bar"><div class="fill" style="--w:7%"></div></div><div class="pct">7%</div></div>
+    </div>
+    <p class="caption">At their core, today's language models predict the next word. Repeat that across billions of examples and the system begins to summarize, explain, and reason. It is not retrieving answers from a database. That is also why it can be fluent and wrong at the same time.</p>
+  </section>
+
+  <!-- 3 EVOLUTION -->
+  <section class="slide" data-part="Part I · The technology">
+    <div class="eyebrow">A seventy-five year arc, most of it in the last decade</div>
+    <h2>The evolution of artificial intelligence.</h2>
+    <div class="evowrap">
+      <svg class="evo" viewBox="0 0 1000 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Curve showing the accelerating capability of AI over time">
+        <defs>
+          <linearGradient id="evoFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#C99700" stop-opacity="0.28"/>
+            <stop offset="100%" stop-color="#C99700" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- baseline -->
+        <line class="grid" x1="40" y1="392" x2="975" y2="392"/>
+        <line class="grid" x1="40" y1="40" x2="40" y2="392"/>
+        <text class="axis-label" x="52" y="34">Capability</text>
+        <text class="axis-label" x="820" y="414">Time →</text>
+        <!-- area + curve -->
+        <path class="area" d="M80,384 C160,372 190,362 250,350 C340,336 360,326 440,300 C520,275 560,262 620,220 C690,182 730,165 800,132 C860,104 900,84 940,60 L940,392 L80,392 Z"/>
+        <path class="curve" d="M80,384 C160,372 190,362 250,350 C340,336 360,326 440,300 C520,275 560,262 620,220 C690,182 730,165 800,132 C860,104 900,84 940,60"/>
+        <!-- milestones -->
+        <g class="m1"><circle class="dot" cx="80" cy="384" r="7"/><text class="yr" x="80" y="360" text-anchor="middle">1950s</text><text class="lbl" x="80" y="342" text-anchor="middle">The field begins</text></g>
+        <g class="m2"><circle class="dot" cx="250" cy="350" r="7"/><text class="yr" x="250" y="326" text-anchor="middle">1997</text><text class="lbl" x="250" y="308" text-anchor="middle">Deep Blue</text></g>
+        <g class="m3"><circle class="dot" cx="440" cy="300" r="7"/><text class="yr" x="440" y="276" text-anchor="middle">2012</text><text class="lbl" x="440" y="258" text-anchor="middle">Deep learning</text></g>
+        <g class="m4"><circle class="dot" cx="620" cy="220" r="7"/><text class="yr" x="620" y="196" text-anchor="middle">2017</text><text class="lbl" x="620" y="178" text-anchor="middle">The transformer</text></g>
+        <g class="m5"><circle class="dot hot" cx="800" cy="132" r="8"/><text class="yr" x="800" y="108" text-anchor="middle">2022</text><text class="lbl" x="800" y="90" text-anchor="middle">ChatGPT</text></g>
+        <g class="m6"><circle class="dot hot" cx="940" cy="60" r="9"/><text class="yr" x="922" y="44" text-anchor="end">2026</text><text class="lbl" x="922" y="26" text-anchor="end">Agents</text></g>
+      </svg>
+    </div>
+    <p class="caption">The idea is old. The capability is new. Almost everything your students will use in practice arrived after 2017, and the curve is still bending upward.</p>
+  </section>
+
+  <!-- 4 WHERE WE ARE 2026 -->
+  <section class="slide" data-part="Part I · The technology">
+    <div class="eyebrow">Where the technology stands in 2026</div>
+    <h2>Two things define this moment: pace, and the move to agents.</h2>
+    <ul class="pointlist">
+      <li>New frontier-class models now arrive every few days, each one <b>cheaper and more capable</b> than the version before it.</li>
+      <li>The systems have moved from answering a question to <b>completing multi-step work</b> across files and tools on their own. The industry calls these agents.</li>
+      <li>2026 is widely described as the year agentic AI moved from demonstration to <b>daily use in professional services</b>.</li>
+    </ul>
+    <p class="caption">You do not need to follow every release. You need to understand the direction, because your students will spend their careers inside it.</p>
+    <div class="source">Sources: industry model-release trackers, 2026; Business Insider, "How the Big Four approached AI in 2025," Dec 2025.</div>
+  </section>
+
+  <!-- 5 CHANGING THE FIRMS -->
+  <section class="slide" data-part="Part I · The profession">
+    <div class="eyebrow">How AI is changing accounting · The firms</div>
+    <h2>The largest firms have moved first, and at scale.</h2>
+    <ul class="pointlist">
+      <li>Deloitte deployed Claude to its <span class="fig">470,000</span> employees worldwide in late 2025.</li>
+      <li>EY gave <span class="fig">80,000</span> tax professionals access to <span class="fig">150</span> AI agents, and plans to scale to <span class="fig">100,000</span> agents by 2028, investing more than <span class="fig">$1&nbsp;billion</span> a year.</li>
+      <li>PwC has deployed roughly <span class="fig">25,000</span> AI agents across client work. KPMG runs a multi-agent audit platform with built-in accountability logs.</li>
+      <li>Deloitte projects its finance agents could cut costs in some functions by as much as <span class="fig">25%</span>.</li>
+    </ul>
+    <div class="source">Sources: Business Insider / Yahoo Finance, Dec 2025; Financial World, Dec 2025.</div>
+  </section>
+
+  <!-- 6 CHANGING THE WORK -->
+  <section class="slide" data-part="Part I · The profession">
+    <div class="eyebrow">How AI is changing accounting · The work</div>
+    <h2>The center of gravity is moving from compliance to advisory.</h2>
+    <ul class="pointlist">
+      <li>Routine preparation, reconciliation, and first-pass document review are increasingly <b>automated</b>.</li>
+      <li>Audit teams use AI to review documentation and flag anomalies. Tax teams use it to <b>cut research time</b> on complex questions.</li>
+      <li>As routine work compresses, the profession's value shifts toward <b>judgment, review, and client advice</b>. The AICPA's own conclusion is that AI will not replace the profession, but it will change what an accountant does.</li>
+    </ul>
+    <p class="caption">This is the part that should shape a curriculum. The tasks that once filled a first year are the tasks a machine now does in seconds.</p>
+    <div class="source">Sources: AICPA & CPA.com, 2025 AI in Accounting Report, June 2025; Thomson Reuters, 2025.</div>
+  </section>
+
+  <!-- 7 CHANGING THE PIPELINE -->
+  <section class="slide" data-part="Part I · The profession">
+    <div class="eyebrow">How AI is changing accounting · The pipeline</div>
+    <h2>The entry-level job your graduates expect is being redrawn.</h2>
+    <ul class="pointlist">
+      <li>Over two years the largest firms cut graduate intake as AI absorbed basic research and drafting: KPMG by <span class="fig">29%</span>, Deloitte <span class="fig">18%</span>, EY <span class="fig">11%</span>, PwC <span class="fig">6%</span>.</li>
+      <li>At the same time, more than <span class="fig">300,000</span> U.S. accountants and auditors have left the profession since 2020. Firms are closing that gap with technology, not headcount.</li>
+      <li>The role now emerging is the <b>"digital senior"</b>: someone who can do the work and supervise the AI doing it.</li>
+    </ul>
+    <p class="caption">Your graduates will not compete with AI. They will be hired to direct it and review it. That is a skill a program can teach.</p>
+    <div class="source">Sources: Accountancy Age, "The Big Four's new favourite grad is AI," June 2025; U.S. Bureau of Labor Statistics data, as reported 2022–2025.</div>
+  </section>
+
+  <!-- 8 READINESS GAP -->
+  <section class="slide" data-part="Part I · The profession">
+    <div class="eyebrow">The gap that matters for educators</div>
+    <h2>The profession knows AI matters. It does not yet feel ready.</h2>
+    <div class="stats">
+      <div class="stat"><div class="big">88%</div><p>say AI will be the most transformative trend in accounting and finance over the next 12 to 24 months.</p></div>
+      <div class="stat"><div class="big">8%</div><p>feel their organization is very well prepared to manage that change.</p></div>
+      <div class="stat"><div class="big">56%</div><p>name generative AI as their single biggest skills gap.</p></div>
+    </div>
+    <p class="caption">That distance between expectation and readiness is precisely where a university can lead. Your graduates can be the ones who arrive prepared.</p>
+    <div class="source">Source: AICPA & CIMA, Future-Ready Finance: Technology, Productivity, and Skills Survey, December 2025 (n = 1,446 global finance leaders).</div>
+  </section>
+
+  <!-- 9 RESEARCH -->
+  <section class="slide" data-part="Part I · The classroom">
+    <div class="eyebrow">What the research shows</div>
+    <h2>Two findings worth carrying into class.</h2>
+    <div class="rcards">
+      <div class="rcard">
+        <div class="stat-line">76.7% vs 47.4%</div>
+        <p>In the largest study of its kind, researchers tested AI against real accounting exams. Students beat the model. Within a year, the next model version had closed most of that gap. The lesson is the trajectory, not the snapshot.</p>
+        <span class="cite">Wood et al., Issues in Accounting Education, 2023. 327 authors, 186 institutions, 25,181 questions.</span>
+      </div>
+      <div class="rcard">
+        <div class="stat-line">90% used it · 5% used it well</div>
+        <p>Across 2,500 employees and 1.4 million AI interactions over eight months, nearly everyone used AI, but only about one in twenty used it in sophisticated, high-impact ways. Usage is not skill, and skill is teachable.</p>
+        <span class="cite">KPMG & University of Texas at Austin, 2026 (via CPA Trendlines).</span>
+      </div>
+    </div>
+    <p class="caption">The differentiator is not access to AI. It is judgment about how to use it, and that is the part you teach.</p>
+  </section>
+
+  <!-- 10 SYLLABUS -->
+  <section class="slide" data-part="Part I · The classroom">
+    <div class="eyebrow">What it means for the curriculum</div>
+    <h2>The tie-out has not changed. Who performs the first pass has.</h2>
+    <div class="three">
+      <div class="tcard"><div class="k">Teach less</div><div class="v">Rote mechanics a machine now completes in seconds.</div></div>
+      <div class="tcard"><div class="k">Teach more</div><div class="v">Judgment. Review. Framing the right question. Detecting the wrong answer.</div></div>
+      <div class="tcard"><div class="k">Redesign</div><div class="v">Assessments that assume AI is available, not ones that hope it is not.</div></div>
+    </div>
+    <p class="caption">A take-home an AI can complete in four minutes was never testing what it was meant to test. This shift is what a growing body of accounting-education research now calls for.</p>
+    <div class="source">Sources: "AI's Capabilities, Limitations, and Impact on Accounting Education," 2025 Issues in Accounting Education Best Paper; systematic reviews, Journal of Accounting Education, 2025–2026.</div>
+  </section>
+
+  <!-- 11 FACULTY ROLE -->
+  <section class="slide" data-part="Part I · The classroom">
+    <div class="eyebrow">The shift for you</div>
+    <h2>The role moves from gatekeeper to coach.</h2>
+    <ul class="pointlist">
+      <li>Think of AI as a capable but unreliable junior: <b>fast, tireless, and in constant need of review</b>.</li>
+      <li>The work moves from grading <b>recall</b> to coaching <b>judgment</b>.</li>
+      <li>The goal is neither to ban it nor to bless it. It is to teach students to <b>supervise it</b>, the way a manager reviews a first-year's file.</li>
+    </ul>
+    <p class="caption">Students will use these tools regardless. Teaching them to use the tools well, in the open, is the version that actually serves them.</p>
+  </section>
+
+  <!-- 12 TWO RULES -->
+  <section class="slide" data-part="Part I · The classroom">
+    <div class="eyebrow">Two rules to teach from day one</div>
+    <h2>For any accountant using AI.</h2>
+    <div class="rules">
+      <div class="rulecard"><div class="n">1</div><h3>Verify every number.</h3><p>These systems can be confidently wrong, and they will invent citations that look real. Trace every figure back to its source before you trust it.</p></div>
+      <div class="rulecard"><div class="n">2</div><h3>Treat output as a first draft.</h3><p>Review it the way you would a first-year's work. Check the logic, check the tie-outs, then sign off. Never before.</p></div>
+    </div>
+    <p class="caption">If a student leaves your course with only these two habits, the course has done its job.</p>
+  </section>
+
+  <!-- 13 BRIDGE + LADDER -->
+  <section class="slide" data-part="Part II · Practice">
+    <div class="eyebrow">Part II · Putting it into practice</div>
+    <h2>For the next hour, one tool: Claude.</h2>
+    <p class="lede">We use a single AI system to make all of this concrete, entirely by typing plain English. The session climbs one ladder with four rungs.</p>
+    <div class="ladder">
+      <div class="rung"><div class="num">01</div><div class="mode">Chat</div><div class="give">You get an answer.</div></div>
+      <div class="rung"><div class="num">02</div><div class="mode">Chat + Skill</div><div class="give">A repeatable answer. Your prompt, packaged and reusable.</div></div>
+      <div class="rung"><div class="num">03</div><div class="mode">Cowork</div><div class="give">A real deliverable, built from your files and live SEC data.</div></div>
+      <div class="rung"><div class="num">04</div><div class="mode">Cowork + Code</div><div class="give">Automation. A script you can rerun forever.</div></div>
+    </div>
+  </section>
+
+  <!-- 14 HANDS-ON -->
+  <section class="slide" data-part="Part II · Practice">
+    <div class="eyebrow">The exercise</div>
+    <h2>One messy trial balance, then your choice.</h2>
+    <p class="lede">We take a single messy trial balance up all four rungs together. Then teams of two or three pick a track and climb as far as time allows.</p>
+    <div class="chalgrid">
+      <div class="chal"><div class="badge">Challenge A</div><h3>The 10-K, four ways</h3><div class="sub">Analyze a real company using live SEC EDGAR data, from a quick read to an automated pipeline.</div></div>
+      <div class="chal"><div class="badge">Challenge B</div><h3>Month-end rescue</h3><div class="sub">Clean a messy trial balance and build a flux analysis from local files.</div></div>
+    </div>
+    <p class="caption">Same ladder either way. You choose the subject, not the difficulty. The two rules apply throughout: verify every figure, and treat every output as a first draft.</p>
+  </section>
+
+  <!-- 15 WRAP -->
+  <section class="slide" data-part="Part II · Practice">
+    <div class="eyebrow">What to take back</div>
+    <h2>Two things for your syllabus.</h2>
+    <ul class="pointlist">
+      <li><b>The verification habit.</b> Teach it as a reflex, the way you already teach the tie-out.</li>
+      <li><b>The ladder.</b> Match the rung to the moment. A discussion prompt is rung one. A grading rubric is rung two. A case deliverable is rung three. A research pipeline is rung four.</li>
+    </ul>
+    <p class="caption">You do not need to become an engineer. You need to become the reviewer your students will be asked to be, and to teach them to be it too.</p>
+  </section>
+
+  <!-- 16 SETUP -->
+  <section class="slide" data-part="Part II · Setup">
+    <div class="eyebrow">One-time setup · About five minutes</div>
+    <h2>Install the SEC EDGAR connector. One download, one double-click.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="sn">1</div>
+        <div>
+          <h3>Download the workshop package</h3>
+          <p>Grab the zip from the GitHub repository and unzip it anywhere. Everything is inside, including <b>START-HERE.docx</b> with full instructions.</p>
+          <div class="code">github.com/frankt86/claude-desktop-hackathon → Releases → hackathon-materials.zip</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sn">2</div>
+        <div>
+          <h3>Double-click the setup file for your computer</h3>
+          <p>It asks for your <b>name and email</b> (the SEC requires an identifying user agent), installs the EdgarTools MCP server, and writes the connector into Claude Desktop's configuration automatically. No typed commands.</p>
+          <div class="oschoice">
+            <span><em>Mac</em>Run-Setup-Mac.command</span>
+            <span><em>Windows</em>Run-Setup-Windows.bat</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sn">3</div>
+        <div>
+          <h3>Restart Claude</h3>
+          <p>Quit the Claude desktop app completely and reopen it. The <b>edgartools</b> connector loads on launch — Claude can now pull live SEC filings.</p>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Requires Python 3 (free, python.org/downloads). Prefer a terminal? The same scripts run from the command line: <b>bash setup-edgartools-mac.sh "Your Name" "you@email.com"</b></p>
+  </section>
+
+  <!-- 17 WALKTHROUGH -->
+  <section class="slide" data-part="Part II · Setup">
+    <div class="eyebrow">The walkthrough · Prove it works, then climb</div>
+    <h2>Verify the connection, then take one file up the ladder.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="sn">1</div>
+        <div>
+          <h3>Test the connector with one question</h3>
+          <p>Ask Claude, in a normal chat:</p>
+          <div class="code">"Using edgartools, what was Deere &amp; Company's revenue last fiscal year? Include the source filing URL."</div>
+          <p>A revenue figure <b>with a sec.gov link</b> means you are live. Click the link — that is Rule 1 in action.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sn">2</div>
+        <div>
+          <h3>Open the sample data</h3>
+          <p>The package includes <b>sample-data/</b>: a messy trial balance, the prior-period trial balance, and an expense report. This is the raw material for Challenge B.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sn">3</div>
+        <div>
+          <h3>Climb with your team</h3>
+          <p><b>Rung 1</b> — chat: have Claude find what's wrong with the trial balance. <b>Rung 2</b> — package that prompt as a skill. <b>Rung 3</b> — Cowork builds the flux workpaper in Excel. <b>Rung 4</b> — ask for a script you can rerun every month-end.</p>
+        </div>
+      </div>
+    </div>
+    <p class="caption">The two rules apply on every rung: verify every figure back to its source, and review every output like a first-year's file.</p>
+  </section>
+
+  <!-- 18 SHOW AND TELL -->
+  <section class="slide" data-part="Part II · Practice">
+    <div class="eyebrow">Show and tell · Two minutes per team</div>
+    <h2>Show us what you built.</h2>
+    <ul class="pointlist">
+      <li><b>The deliverable.</b> Put it on the screen — the analysis, the workpaper, the script. Whatever rung you reached.</li>
+      <li><b>One number you verified.</b> Show the figure and the source you traced it to. This is the habit we came to build.</li>
+      <li><b>One surprise.</b> Where was the AI better than you expected — and where was it confidently wrong?</li>
+    </ul>
+    <p class="caption">The rung you reached matters less than what you noticed on the way up. The wrong answers you caught are worth as much as the right ones you got.</p>
+  </section>
+
+  <!-- 19 SOURCES -->
+  <section class="slide" data-part="References">
+    <div class="eyebrow">Sources</div>
+    <h2>Verify, then reuse.</h2>
+    <ul class="srclist">
+      <li><b>AICPA & CIMA.</b> Future-Ready Finance: Technology, Productivity, and Skills Survey. December 2025.</li>
+      <li><b>AICPA & CPA.com.</b> 2025 AI in Accounting Report. June 2025.</li>
+      <li><b>Wood, D. A., et al.</b> "The ChatGPT AI Chatbot: How Well Does It Answer Accounting Assessment Questions?" Issues in Accounting Education, 2023.</li>
+      <li><b>American Accounting Association.</b> "AI's Capabilities, Limitations, and Impact on Accounting Education." 2025 Issues in Accounting Education Best Paper.</li>
+      <li><b>KPMG & University of Texas at Austin.</b> Workplace AI usage study, 2026 (reported by CPA Trendlines).</li>
+      <li><b>Accountancy Age.</b> "The Big Four's new favourite grad is AI." June 2025.</li>
+      <li><b>Business Insider / Yahoo Finance.</b> Big Four AI agent deployment. December 2025.</li>
+      <li><b>Thomson Reuters.</b> How accounting firms use AI. 2025.</li>
+    </ul>
+    <div class="closing-mark">Created with the assistance of AI. All figures should be independently verified against the original sources before use in any published material.</div>
+  </section>
+
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let i = 0;
+  const progress=document.getElementById('progress'), curEl=document.getElementById('cur'),
+        totalEl=document.getElementById('total'), partflag=document.getElementById('partflag'),
+        hint=document.getElementById('hint');
+  totalEl.textContent = total;
+  function show(n){
+    i=Math.max(0,Math.min(total-1,n));
+    slides.forEach((s,idx)=>s.classList.toggle('active',idx===i));
+    curEl.textContent=i+1;
+    progress.style.width=((i+1)/total*100)+'%';
+    partflag.textContent=slides[i].dataset.part||'';
+  }
+  function next(){if(i<total-1)show(i+1);}
+  function prev(){if(i>0)show(i-1);}
+  document.addEventListener('keydown',e=>{
+    if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();next();dismiss();}
+    else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();prev();dismiss();}
+    else if(e.key==='Home'){show(0);} else if(e.key==='End'){show(total-1);}
+  });
+  document.getElementById('next').addEventListener('click',()=>{next();dismiss();});
+  document.getElementById('prev').addEventListener('click',()=>{prev();dismiss();});
+  let t=setTimeout(dismiss,5000);
+  function dismiss(){hint.classList.add('gone');clearTimeout(t);}
+  show(0);
+</script>
+</body>
+</html>

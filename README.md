@@ -80,4 +80,4 @@ Both use the identical four-level ladder, so teams choose subject matter, not di
 
 ---
 
-*Created with the assistance of AI. All financial data retrieved during the workshop should be independently verified against official SEC sources before use in any real analysis.*
+*All financial data retrieved during the workshop should be independently verified against official SEC sources before use in any real analysis.*

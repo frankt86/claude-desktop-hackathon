@@ -168,13 +168,20 @@
   .closing-mark{font-family:var(--mono);font-size:clamp(11px,1vw,13px);color:var(--slate-dim);letter-spacing:.04em;margin-top:2rem;line-height:1.7}
 
   /* setup steps */
-  .steps{margin-top:2rem;display:flex;flex-direction:column;gap:1.2rem;max-width:900px}
+  .steps{margin-top:1.5rem;display:flex;flex-direction:column;gap:1rem;max-width:900px}
   .step{display:grid;grid-template-columns:52px 1fr;gap:1.1rem;align-items:start}
   .step .sn{font-family:var(--serif);font-size:clamp(24px,2.6vw,38px);color:var(--gold-bright);line-height:1;border:1px solid var(--line);border-radius:10px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:rgba(201,151,0,.06)}
   .step h3{font-family:var(--serif);font-size:clamp(17px,1.8vw,25px);color:var(--cream);line-height:1.15}
   .step p{color:var(--slate);font-size:clamp(13px,1.28vw,16.5px);line-height:1.5;margin-top:.35rem}
   .step p b{color:var(--cream);font-weight:600}
   .code{font-family:var(--mono);font-size:clamp(11.5px,1.15vw,14.5px);color:var(--gold-bright);background:rgba(0,0,0,.35);border:1px solid var(--line-soft);border-radius:8px;padding:.5rem .8rem;margin-top:.55rem;display:inline-block;max-width:100%;overflow-x:auto;white-space:nowrap}
+  .prompt{font-family:var(--mono);font-size:clamp(13px,1.35vw,17.5px);line-height:1.55;color:var(--gold-bright);background:rgba(0,0,0,.35);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:1.1rem 1.3rem;margin-top:1.6rem;max-width:960px;white-space:pre-wrap}
+  .prompt::before{content:"THE PROMPT · TYPE OR PASTE THIS";display:block;font-size:10.5px;letter-spacing:.22em;color:var(--slate-dim);margin-bottom:.6rem}
+  .csvblock{font-family:var(--mono);font-size:clamp(11px,1.15vw,14.5px);line-height:1.75;color:var(--cream);background:rgba(0,0,0,.35);border:1px solid var(--line-soft);border-radius:10px;padding:1rem 1.2rem;margin-top:1.6rem;max-width:960px;overflow-x:auto;white-space:pre}
+  .csvblock .hd{color:var(--slate-dim)}
+  .csvblock .bad{color:var(--gold-bright)}
+  .rungtag{font-family:var(--mono);font-size:clamp(11px,1.05vw,13.5px);letter-spacing:.16em;text-transform:uppercase;color:var(--slate-dim);margin-top:1.2rem}
+  .rungtag b{color:var(--gold-bright);font-weight:600}
   .oschoice{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:.55rem}
   .oschoice span{font-family:var(--mono);font-size:clamp(11.5px,1.1vw,14px);color:var(--cream);border:1px solid var(--line);border-radius:8px;padding:.45rem .8rem;background:rgba(201,151,0,.07)}
   .oschoice span em{font-style:normal;color:var(--gold);margin-right:.5rem;font-size:.85em;letter-spacing:.1em;text-transform:uppercase}
@@ -213,7 +220,7 @@
 
 <div class="progress" id="progress"></div>
 <div class="partflag" id="partflag"></div>
-<div class="counter"><b id="cur">1</b> / <span id="total">19</span></div>
+<div class="counter"><b id="cur">1</b> / <span id="total">25</span></div>
 <div class="hint" id="hint">← → to move</div>
 <div class="nav"><button id="prev" aria-label="Previous">←</button><button id="next" aria-label="Next">→</button></div>
 
@@ -414,8 +421,8 @@
       <div class="step">
         <div class="sn">1</div>
         <div>
-          <h3>Download the workshop package</h3>
-          <p>Grab the zip from the GitHub repository and unzip it anywhere. Everything is inside, including <b>START-HERE.docx</b> with full instructions and the sample data.</p>
+          <h3>Download and extract the workshop package</h3>
+          <p>Download the zip, then <b>extract it</b> — double-click on a Mac, right-click → <b>Extract All…</b> on Windows. Don't run anything from inside the zip. The extracted folder has <b>START-HERE.docx</b> and the sample data.</p>
           <div class="code">github.com/frankt86/claude-desktop-hackathon → Releases → hackathon-materials.zip</div>
         </div>
       </div>
@@ -440,48 +447,62 @@
         </div>
       </div>
     </div>
-    <p class="caption">Requires Python 3 (free, python.org/downloads). Anything goes wrong, the troubleshooting section of <b>START-HERE.docx</b> has you covered.</p>
+    <p class="caption" style="margin-top:1.1rem">Requires Python 3 (free, python.org/downloads). Anything goes wrong: the troubleshooting section of <b>START-HERE.docx</b>.</p>
   </section>
 
-  <!-- 15 DEMO -->
-  <section class="slide" data-part="Part II · Practice">
-    <div class="eyebrow">The demo · Watch one file climb all four rungs</div>
-    <h2>One messy trial balance, Chat to Code.</h2>
-    <div class="steps">
-      <div class="step">
-        <div class="sn">1</div>
-        <div>
-          <h3>Chat — find what's wrong</h3>
-          <p>Paste the trial balance into a chat and ask what a reviewer should catch. Claude finds the misclassifications and the out-of-balance total in seconds.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="sn">2</div>
-        <div>
-          <h3>Skill — make it repeatable</h3>
-          <p>Package that prompt as a <b>skill</b>: your review standard, encoded, so it runs the same way every time — for you or all forty of your students.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="sn">3</div>
-        <div>
-          <h3>Cowork — build the deliverable</h3>
-          <p>Claude works the actual files — current and prior-period trial balances — and produces a finished <b>flux analysis in Excel</b>.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="sn">4</div>
-        <div>
-          <h3>Code — automate it</h3>
-          <p>Ask for a script that rebuilds the workpaper on demand. Next month-end, it reruns in seconds.</p>
-        </div>
-      </div>
-    </div>
-    <p class="caption">Watch first — then it's your turn. Your teams run this same climb on the challenge you pick next.</p>
+  <!-- 15 DEMO: THE FILE -->
+  <section class="slide" data-part="Part II · The demo">
+    <div class="eyebrow">The demo · One file, four rungs</div>
+    <h2>Your junior staff just sent you this.</h2>
+    <div class="csvblock"><span class="hd">Account Number,Account Name,Amount (Dr +/Cr -)</span>
+1000-00,<span class="bad">cash - operating&nbsp;</span>,152340.25
+<span class="bad">ACCT1010</span>,<span class="bad">&nbsp;Cash - Payroll</span>,48200.00
+1100,<span class="bad">accounts receivable</span>,287450.75
+1200-00,<span class="bad">INVENTORY</span>,198760.00
+2000-00,<span class="bad">ACCOUNTS PAYABLE</span>,<span class="bad">-164230.40</span>
+<span class="bad">ACCT2100</span>,<span class="bad">&nbsp;accrued liabilities</span>,-58900.00
+6100,rent expense,96000.00   <span class="hd">← …and this row appears twice</span></div>
+    <p class="caption">Three different account-number schemes, random capitalization, stray whitespace, debits and credits jammed into one signed column — plus a planted duplicate and an out-of-balance total hiding further down (<b>sample-data/trial_balance_current.csv</b> in your package). We handle it four ways, and each way teaches you a different thing Claude can be.</p>
   </section>
 
-  <!-- 16 CHALLENGES -->
-  <section class="slide" data-part="Part II · Practice">
+  <!-- 16 DEMO RUNG 1 -->
+  <section class="slide" data-part="Part II · The demo">
+    <div class="eyebrow">The demo · Rung 1 of 4 — Chat</div>
+    <h2>Chat: the answer.</h2>
+    <div class="rungtag">Regular Claude chat · Paste 10–15 rows of the messy file into the message</div>
+    <div class="prompt">Here's an excerpt from a trial balance a junior staff member prepared. Identify everything wrong with it and explain each problem the way you'd explain it to the staff member so they learn.</div>
+    <p class="caption">No setup, no files, instant value — and its limit: you got an explanation, not a fixed file. Would you trust this without checking? Why not? <b>The verification habit starts in minute one.</b></p>
+  </section>
+
+  <!-- 17 DEMO RUNG 2 -->
+  <section class="slide" data-part="Part II · The demo">
+    <div class="eyebrow">The demo · Rung 2 of 4 — Chat + Skill</div>
+    <h2>Skill: the repeatable answer.</h2>
+    <div class="rungtag">Same chat · Then paste the same excerpt again and watch the skill apply itself</div>
+    <div class="prompt">Help me create a skill called "TB cleanup standards". Whenever I give Claude a trial balance, it must: standardize account names and numbers, split signed amounts into debit/credit columns, verify the TB balances, and always produce an Exceptions list documenting every change and why. No silent fixes, ever.</div>
+    <p class="caption">The prompt you perfected is now an asset. <b>A skill is how you hand your prompting expertise to 40 students at once — or to yourself next semester.</b></p>
+  </section>
+
+  <!-- 18 DEMO RUNG 3 -->
+  <section class="slide" data-part="Part II · The demo">
+    <div class="eyebrow">The demo · Rung 3 of 4 — Cowork</div>
+    <h2>Cowork: the deliverable.</h2>
+    <div class="rungtag">Switch to Cowork · Attach the full <b>trial_balance_current.csv</b></div>
+    <div class="prompt">Clean up this trial balance following proper workpaper standards: trim whitespace, standardize account names to title case, fix inconsistent account numbers, split the signed Amount column into Debit and Credit. Verify it balances — if not, identify the suspicious entries. Output an Excel workbook with three tabs: Clean TB, Summary by Category, and Exceptions listing every change you made and why.</div>
+    <p class="caption">Claude is now <b>doing</b>, not advising — it catches the planted duplicate and the out-of-balance entry, and the output is a real .xlsx you open live. This is the jump from "Chat &amp; Skills" to "Cowork."</p>
+  </section>
+
+  <!-- 19 DEMO RUNG 4 -->
+  <section class="slide" data-part="Part II · The demo">
+    <div class="eyebrow">The demo · Rung 4 of 4 — Cowork + Code</div>
+    <h2>Code: the machine.</h2>
+    <div class="rungtag">Cowork or Claude Code · Both sample-data files attached</div>
+    <div class="prompt">Write a Python script called monthly_variance.py that cleans any trial balance CSV like the one attached, verifies it balances, compares it to a prior period file, and writes the same three-tab Excel workbook. Run it on the two files in sample-data and show me the exceptions it found.</div>
+    <p class="caption">Then rerun it and time it. A few minutes to build, two seconds to rerun. Next month-end: drop in the new file, run one command. <b>Cowork gave you the answer; Code gave you the answer plus the machine.</b></p>
+  </section>
+
+  <!-- 20 CHALLENGES -->
+  <section class="slide" data-part="Part II · Your turn">
     <div class="eyebrow">Your turn · Teams of two or three</div>
     <h2>Pick a challenge, climb the same ladder.</h2>
     <p class="lede">Both tracks climb the identical four rungs — Chat, Skill, Cowork, Code. You choose the subject, not the difficulty.</p>
@@ -489,10 +510,84 @@
       <div class="chal"><div class="badge">Challenge A</div><h3>The 10-K, four ways</h3><div class="sub">Analyze a real company using live SEC EDGAR data, from a quick read to an automated pipeline.</div></div>
       <div class="chal"><div class="badge">Challenge B</div><h3>Month-end rescue</h3><div class="sub">Clean a messy trial balance and build a flux analysis from local files.</div></div>
     </div>
-    <p class="caption">Step-by-step instructions for both tracks — every level, every prompt — are in <b>Challenges.docx</b> in your download package. Climb as far as time allows; a team that does two rungs well beats a team that rushed to four. The two rules apply throughout.</p>
+    <p class="caption">Every level and every prompt, ready to copy, is in <b>Challenges.docx</b> in your download package. Climb as far as time allows; a team that does two rungs well beats a team that rushed to four. The two rules apply throughout.</p>
   </section>
 
-  <!-- 17 SHOW AND TELL -->
+  <!-- 21 CHALLENGE A DETAIL -->
+  <section class="slide" data-part="Part II · Your turn">
+    <div class="eyebrow">Challenge A · The 10-K, four ways · Live SEC data</div>
+    <h2>Pick one public company your team knows.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="sn">1</div>
+        <div>
+          <h3>Chat — the 5-minute briefing <span style="color:var(--slate-dim);font-family:var(--mono);font-size:.6em">~10 min</span></h3>
+          <p>Have Claude explain the company's business model and its three biggest financial-statement risks for an intermediate-accounting student. Then push back: <b>"how confident are you in those figures?"</b> — memory versus verification is the point.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sn">2</div>
+        <div>
+          <h3>Skill — the "10-K digest" <span style="color:var(--slate-dim);font-family:var(--mono);font-size:.6em">~15 min</span></h3>
+          <p>Build a skill that turns any company name into a one-page partner memo: top risk factors, MD&amp;A highlights, red flags, a "verify these figures" list, a DRAFT label. Test it on two companies — notice the consistency.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sn">3</div>
+        <div>
+          <h3>Cowork — the live ratio workbook <span style="color:var(--slate-dim);font-family:var(--mono);font-size:.6em">~20 min</span></h3>
+          <p>Using the SEC EDGAR connector, pull real filing figures for your company and a competitor into an Excel workbook — ratios side by side, <b>a source filing URL for every number</b>. Click one URL and tie a number back to the 10-K.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sn">4</div>
+        <div>
+          <h3>Code — the any-ticker machine <span style="color:var(--slate-dim);font-family:var(--mono);font-size:.6em">stretch</span></h3>
+          <p>A Python script that takes <b>any ticker</b> and produces the same ratio workbook from the SEC EDGAR API. Prove it on a company you haven't analyzed yet.</p>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Full copy-paste prompts for every level: <b>Challenges.docx → Challenge A</b>.</p>
+  </section>
+
+  <!-- 22 CHALLENGE B DETAIL -->
+  <section class="slide" data-part="Part II · Your turn">
+    <div class="eyebrow">Challenge B · Month-end rescue · Local files, no connector</div>
+    <h2>The partner wants a flux analysis by end of day.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="sn">1</div>
+        <div>
+          <h3>Chat — the teaching moment <span style="color:var(--slate-dim);font-family:var(--mono);font-size:.6em">~10 min</span></h3>
+          <p>Paste 10–15 rows of <b>trial_balance_current.csv</b> and have Claude find everything wrong — formatting, structure, suspicious entries — explained so the junior staffer learns. Compare against what your team spotted first.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sn">2</div>
+        <div>
+          <h3>Skill — workpaper standards <span style="color:var(--slate-dim);font-family:var(--mono);font-size:.6em">~15 min</span></h3>
+          <p>Encode your review standards as the <b>"TB cleanup standards"</b> skill: standardize names and numbers, split debits/credits, verify the balance, and always produce an Exceptions list. <b>No silent fixes, ever</b> — the audit trail, made non-negotiable.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sn">3</div>
+        <div>
+          <h3>Cowork — the flux workbook <span style="color:var(--slate-dim);font-family:var(--mono);font-size:.6em">~20 min</span></h3>
+          <p>Attach both trial balances. Claude cleans the messy one, then builds the variance analysis: dollar and percent change per account, items over <b>10% and $5,000</b> flagged with a plausible explanation to confirm or reject, plus an Exceptions tab. Did it catch the planted duplicate?</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sn">4</div>
+        <div>
+          <h3>Code — next month in two seconds <span style="color:var(--slate-dim);font-family:var(--mono);font-size:.6em">stretch</span></h3>
+          <p><b>monthly_variance.py</b> — everything Level 3 did, for any pair of trial balance CSVs. Run it, check it matches your workbook, rerun it, time it.</p>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Full copy-paste prompts for every level: <b>Challenges.docx → Challenge B</b>.</p>
+  </section>
+
+  <!-- 23 SHOW AND TELL -->
   <section class="slide" data-part="Part II · Practice">
     <div class="eyebrow">Show and tell · Two minutes per team</div>
     <h2>Show us what you built.</h2>
@@ -504,7 +599,7 @@
     <p class="caption">The rung you reached matters less than what you noticed on the way up. The wrong answers you caught are worth as much as the right ones you got.</p>
   </section>
 
-  <!-- 18 WRAP -->
+  <!-- 24 WRAP -->
   <section class="slide" data-part="Part II · Practice">
     <div class="eyebrow">What to take back</div>
     <h2>Two things for your syllabus.</h2>
@@ -515,7 +610,7 @@
     <p class="caption">You do not need to become an engineer. You need to become the reviewer your students will be asked to be, and to teach them to be it too.</p>
   </section>
 
-  <!-- 19 SOURCES -->
+  <!-- 25 SOURCES -->
   <section class="slide" data-part="References">
     <div class="eyebrow">Sources</div>
     <h2>Verify, then reuse.</h2>
@@ -529,7 +624,7 @@
       <li><b>Business Insider / Yahoo Finance.</b> Big Four AI agent deployment. December 2025.</li>
       <li><b>Thomson Reuters.</b> How accounting firms use AI. 2025.</li>
     </ul>
-    <div class="closing-mark">Created with the assistance of AI. All figures should be independently verified against the original sources before use in any published material.</div>
+    <div class="closing-mark">All figures should be independently verified against the original sources before use in any published material.</div>
   </section>
 
 </div>

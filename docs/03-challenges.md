@@ -102,4 +102,4 @@ Informal judging: usefulness to a real accountant or classroom, quality of outpu
 
 ---
 
-*Created with the assistance of AI. Verify all financial figures against official SEC sources before any real use.*
+*Verify all financial figures against official SEC sources before any real use.*

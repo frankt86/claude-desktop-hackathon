@@ -10,8 +10,8 @@
 
 set -euo pipefail
 
-NAME="${1:-John Smith}"
-EMAIL="${2:-john.smith@google.com}"
+NAME="${1:-}"
+EMAIL="${2:-}"
 
 if [ -z "$NAME" ]; then
   read -r -p "Your name (for SEC EDGAR_IDENTITY, e.g. Jane Smith): " NAME
@@ -41,6 +41,26 @@ if ! PYTHONIOENCODING=utf-8 "$PYTHON_BIN" -m edgar.ai --test; then
   exit 1
 fi
 
+# Claude Desktop treats claude_desktop_config.json as its own LIVE app state
+# (it reads AND rewrites this file while running - it is not a static file the
+# app only reads once). If Claude Desktop is running while we write to it, the
+# two writers can race: either the app overwrites our change moments later
+# with its own stale in-memory copy (silently dropping mcpServers), or the two
+# writes interleave and produce corrupted, unparseable JSON. Close it first,
+# every time. (Same fix the Windows script ships.)
+if pgrep -x "Claude" >/dev/null 2>&1; then
+  echo ""
+  echo "Closing Claude Desktop so it doesn't overwrite this change while we write it..."
+  echo "(Any unsaved chat draft in an open Claude window will be lost.)"
+  osascript -e 'quit app "Claude"' >/dev/null 2>&1 || pkill -x "Claude" || true
+  sleep 2
+  # If a graceful quit didn't take, force it.
+  if pgrep -x "Claude" >/dev/null 2>&1; then
+    pkill -9 -x "Claude" || true
+    sleep 1
+  fi
+fi
+
 CONFIG_DIR="$HOME/Library/Application Support/Claude"
 CONFIG_PATH="$CONFIG_DIR/claude_desktop_config.json"
 mkdir -p "$CONFIG_DIR"
@@ -58,7 +78,7 @@ import sys
 config_path, python_bin, edgar_identity = sys.argv[1:4]
 
 try:
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, "r", encoding="utf-8-sig") as f:
         config = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError):
     config = {}
@@ -80,6 +100,34 @@ with open(config_path, "w", encoding="utf-8") as f:
 print(f"Wrote {config_path}")
 PYEOF
 
-echo ""
-echo "Done. Quit and reopen the Claude Desktop app for the edgartools MCP server to load."
-echo "Test it by asking Claude: \"Using edgartools, what was Deere & Company's revenue last fiscal year?\""
+# Verify the write actually stuck - a lingering process, antivirus, or a
+# background sync tool could still clobber it a moment later. Re-check after
+# a short settle delay rather than assuming. (Same check as the Windows script.)
+sleep 2
+if "$PYTHON_BIN" - "$CONFIG_PATH" <<'PYEOF'
+import json
+import sys
+
+config_path = sys.argv[1]
+try:
+    with open(config_path, "r", encoding="utf-8-sig") as f:
+        config = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    sys.exit(1)
+sys.exit(0 if "edgartools" in config.get("mcpServers", {}) else 1)
+PYEOF
+then
+  echo ""
+  echo "Verified: edgartools is present in $CONFIG_PATH"
+  echo "Starting Claude Desktop..."
+  if open -a "Claude" >/dev/null 2>&1; then
+    echo "Done - Claude Desktop is open and the edgartools MCP server is loaded."
+  else
+    echo "Done, but Claude Desktop couldn't be started automatically - open it yourself from Applications."
+  fi
+  echo "Test it by asking Claude: \"Using edgartools, what was Deere & Company's revenue last fiscal year?\""
+else
+  echo "WARNING: $CONFIG_PATH does not contain edgartools (or is not valid JSON) after the write." >&2
+  echo "Something rewrote or corrupted it - make sure Claude Desktop is fully closed and re-run this script." >&2
+  exit 1
+fi

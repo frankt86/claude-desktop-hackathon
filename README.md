@@ -9,6 +9,16 @@ A hands-on introduction to Claude for accounting faculty. **No coding experience
 
 (Prefer to browse instead of downloading a zip? The same files are in the **[`download/`](download/)`** folder above.)
 
+## The presentation
+
+The workshop slide deck lives in this repo as [`presentation.html`](presentation.html). GitHub shows HTML files as source code, so to *run* it as a presentation use one of these:
+
+- **[▶ Open the presentation](https://raw.githack.com/frankt86/claude-desktop-hackathon/main/presentation.html)** — one click, no setup (rendered via raw.githack.com)
+- Or enable GitHub Pages (repo **Settings → Pages → Deploy from branch → `main`**) and it will be served at `https://frankt86.github.io/claude-desktop-hackathon/presentation.html`
+- Or download `presentation.html` and double-click it — it's fully self-contained and works offline
+
+Navigate with **← / →** arrow keys, space, or the on-screen buttons. 19 slides: Part I (the technology and the profession), Part II (practice), then setup, walkthrough, and show-and-tell.
+
 Everything below this point is for the facilitator running the event.
 
 ## The big idea: one ladder, four rungs
@@ -70,4 +80,4 @@ Both use the identical four-level ladder, so teams choose subject matter, not di
 
 ---
 
-*Created with the assistance of AI. All financial data retrieved during the workshop should be independently verified against official SEC sources before use in any real analysis.*
+*All financial data retrieved during the workshop should be independently verified against official SEC sources before use in any real analysis.*
